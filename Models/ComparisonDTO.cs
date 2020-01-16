@@ -1,6 +1,6 @@
 namespace nsreporter.Models
 {
-    internal class ComparisonDTO
+    public class ComparisonDTO
     {
         public ComparisonDTO()
         {
