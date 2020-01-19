@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using nsreporter.Models;
 using Microsoft.Extensions.Configuration;
 using System.Threading.Tasks;
+using NationStatesAPI.Login;
+using NationStatesAPI.Models.Dispatch;
 
 namespace nsreporter
 {
@@ -26,17 +28,30 @@ namespace nsreporter
                 throw new ArgumentException("Invalid day of month specified. Only all-months days are available (1-28)");
             }
 
+
+
             Reporter reporter = new Reporter();
-            await reporter.GetLatestData();
-
+            if(reporter.MustImportAll())
+            {
+                // await reporter.
+            }
+            else
+            {
+                await reporter.GetLatestData(appSettings.Nation);
+            }
             
-            // if(appSettings.MakeProgressReport && DateTime.Today.Day == appSettings.DayOfMonth )
-            // {
-            //     var oldData = reporter.CompareOldData();
-            //     reporter.ApplyComparisonToTemplate(oldData, appSettings.TemplateFile);
-            // }
-        }
+            if(appSettings.MakeProgressReport && DateTime.Today.Day == appSettings.DayOfMonth )
+            {
+                var oldData = reporter.CompareOldData();
+                var report = reporter.ApplyComparisonToTemplate(oldData, appSettings.TemplateFile);
+                var reportTitle = appSettings.ReportTitle.Replace("%LAST_MONTH%", DateTime.Today.AddMonths(-1).ToShortDateString());
+                reportTitle = reportTitle.Replace("%TODAY%", DateTime.Today.ToShortDateString());
 
-        
+                NSCredentials nsCred = new NSCredentials(appSettings.Nation, appSettings.Password);
+                await nsCred.Authenticate();
+                var cmd = new PrivateCommands(nsCred);
+                await cmd.CreateDispatch(Bulletin.DispatchType, (int)Bulletin.BulletinType.News, reportTitle, report);
+            }
+        }        
     }
 }
