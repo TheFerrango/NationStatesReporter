@@ -1,0 +1,88 @@
+Economic overview for the month: %LAST_MONTH% - %TODAY%
+[center]The
+[size=200]Bureau for Statistics and Economic Analisys of Ferranghia's Empire[/size]
+ 
+[img]https://i.imgur.com/ymqCyaQ.png[/img]
+
+is proud to present you with its monthly
+
+[size=150]Monthly Assessment and General Overview for Economic and Statistical Growth, Decadence, and Everything in-between[sup]TM[/sup][/size]
+for the quad-weekly period covering from %LAST_MONTH% to %TODAY%.[/center]
+
+The following data have been collected and processed by the associate Software Overmistress of [nation]ferranghia_advanced_industry[/nation], under the Trading of Information agreement between [nation]%NATION_NAME%[/nation] and [nation]ferranghia_advanced_industry[/nation].
+
+
+[size=200]An overview of the review[/size]
+The review is divided into six categories, for which last month's value, current month's value and delta between the two values will be provided. The aforementioned categories are the following:
+[list=1][*]Best performing overall sectors[*]Sectors with the greatest absolute gain[*]Fastest growing sectors[*]Fastest shrinking sectors[*]Sectors with the greatest absolute lost[*]Worst performing overall sectors[/list][size=200]A month in review[/size]
+[size=150]Best performing overall sectors[/size]
+These are the ten top sectors per gross value, at the end of the evaluation period. No consideration has been done to filter out stable or recessing sectors, as long as their gross value is still high, they will still be shown here
+[table] [tr]
+  [td]SECTOR[/td]
+  [td]OLD VALUE[/td]
+  [td]NEW VALUE[/td]
+  [td]DELTA (ABS.)[/td]
+  [td]DELTA (%)[/td]
+[/tr]
+%BEST%
+[/table]
+
+[size=150]Sectors with the greatest absolute gain[/size]
+These are the ten top sectors per gross value increase, at the end of the evaluation period. No consideration has been done to scale pre-existing and well-developed sectors so that they can compare to newer, faster-growing but overall smaller sectors.
+[table] [tr]
+  [td]SECTOR[/td]
+  [td]OLD VALUE[/td]
+  [td]NEW VALUE[/td]
+  [td]DELTA (ABS.)[/td]
+  [td]DELTA (%)[/td]
+[/tr]
+%IMPROVED_ABS%
+[/table]
+
+[size=150]Fastest growing sectors[/size]
+These are the ten top sectors per percentage value increase, at the end of the evaluation period. That means faster-growing but smaller sectors will appear in the table whereas a pre-existing and well-developed sector with a lower percentage increase in value will not be shown.
+[table] [tr]
+  [td]SECTOR[/td]
+  [td]OLD VALUE[/td]
+  [td]NEW VALUE[/td]
+  [td]DELTA (ABS.)[/td]
+  [td]DELTA (%)[/td]
+[/tr]
+%IMPROVED%
+[/table]
+
+[size=150]Fastest shrinking sectors[/size]
+These are the ten top sectors per percentage value decrease/worst 10 per increase, at the end of the evaluation period. That means faster-shrinking but smaller sectors will appear in the table whereas a pre-existing and well-developed sector with a lower percentage decrease in value will not be shown.
+[table] [tr]
+  [td]SECTOR[/td]
+  [td]OLD VALUE[/td]
+  [td]NEW VALUE[/td]
+  [td]DELTA (ABS.)[/td]
+  [td]DELTA (%)[/td]
+[/tr]
+%WORSENED%
+[/table]
+
+[size=150]Sectors with the greatest absolute loss[/size]
+These are the ten top sectors per gross value loss/worst 10 per increase, at the end of the evaluation period. No consideration has been done to scale between well-developed and smaller sectors.
+[table] [tr]
+  [td]SECTOR[/td]
+  [td]OLD VALUE[/td]
+  [td]NEW VALUE[/td]
+  [td]DELTA (ABS.)[/td]
+  [td]DELTA (%)[/td]
+[/tr]
+%WORSENED_ABS%
+[/table]
+
+[size=150]Worst performing overall sectors[/size]
+These are the ten worst sectors per gross value, at the end of the evaluation period. No consideration has been done to filter out stable or expanding sectors, as long as their gross value is still low, they will still be shown here
+[table] [tr]
+  [td]SECTOR[/td]
+  [td]OLD VALUE[/td]
+  [td]NEW VALUE[/td]
+  [td]DELTA (ABS.)[/td]
+  [td]DELTA (%)[/td]
+[/tr]
+%WORST%
+[/table]

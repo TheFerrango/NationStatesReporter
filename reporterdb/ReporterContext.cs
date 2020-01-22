@@ -13,9 +13,10 @@ namespace nsreporter.ReporterDB
 
         }
         public ReporterContext(string connString)
-        {
-            
+        {            
             this._connectionString = connString;
+            this.Database.EnsureCreated();
+
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

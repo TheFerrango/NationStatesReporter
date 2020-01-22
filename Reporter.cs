@@ -18,14 +18,14 @@ namespace nsreporter
         {
             using (ReporterContext rctx = new ReporterContext())
             {
-                return rctx.DatedScales.Any();
+                return !rctx.DatedScales.Any();
             }
         }
 
         public CompareResult CompareOldData()
         {
             var toExclude = new List<CensusEnum>() { CensusEnum.WorldAssemblyEndorsements, CensusEnum.Survivors, CensusEnum.Population, CensusEnum.Zombies, CensusEnum.Dead };
-            DateTime oggi = DateTime.Today;
+            DateTime oggi = new DateTime(2020,1,20); //DateTime.Today;
             DateTime meseScorso = oggi.AddMonths(-1);
             using (ReporterContext rctx = new ReporterContext())
             {
@@ -35,6 +35,7 @@ namespace nsreporter
                                       .ToList();
                 var datiVecchi = rctx.DatedScales
                                       .Where(x => !toExclude.Contains((CensusEnum)x.CensusId))
+                                      .Where(x => x.CensusDate == meseScorso)
                                       .ToList();
                 datiVecchi = datiVecchi.Where(x => x.CensusDate.Date == meseScorso).ToList();
                 var confronto = (from tdy in datiOdierni
@@ -62,26 +63,29 @@ namespace nsreporter
 
         public async Task GetLatestData(string nation)
         {
-            NationCommands api = new NationCommands();
-            var censusData = await api.GetNationCensus(nation, CensusEnum.All);
-
-
             using (ReporterContext rctx = new ReporterContext())
             {
-                rctx.Database.EnsureCreated();
                 DateTime runningDate = DateTime.Today;
-                foreach (var cens in censusData.CENSUS.Scale)
+
+                // If today has already run and imported data, there is no point in doing this again
+                if (!rctx.DatedScales.Where(x => x.CensusDate == runningDate).Any())
                 {
-                    rctx.DatedScales.Add(new DatedScale()
+                    NationCommands api = new NationCommands();
+                    var censusData = await api.GetNationCensus(nation, CensusEnum.All);
+
+                    foreach (var cens in censusData.CENSUS.Scale)
                     {
-                        CensusId = cens.Id,
-                        CensusDate = runningDate,
-                        Score = cens.Score,
-                        Rank = cens.Rank,
-                        RRank = cens.RRank
-                    });
+                        rctx.DatedScales.Add(new DatedScale()
+                        {
+                            CensusId = cens.Id,
+                            CensusDate = runningDate,
+                            Score = cens.Score,
+                            Rank = cens.Rank,
+                            RRank = cens.RRank
+                        });
+                    }
+                    rctx.SaveChanges();
                 }
-                rctx.SaveChanges();
             }
         }
 
@@ -90,40 +94,46 @@ namespace nsreporter
             NationCommands api = new NationCommands();
             Nation censusData = await api.GetHistoryNationCensus(nation, null, null, CensusEnum.All);
 
-            censusData.CENSUS.Scale[0].
-
             using (ReporterContext rctx = new ReporterContext())
             {
                 rctx.Database.EnsureCreated();
-                DateTime runningDate = DateTime.Today;
+
                 foreach (var cens in censusData.CENSUS.Scale)
                 {
-                    rctx.DatedScales.Add(new DatedScale()
+                    foreach (var point in cens.Point)
                     {
-                        CensusId = cens.Id,
-                        CensusDate = runningDate,
-                        Score = cens.Score,
-                        Rank = cens.Rank,
-                        RRank = cens.RRank
-                    });
+                        rctx.DatedScales.Add(new DatedScale()
+                        {
+                            CensusId = cens.Id,
+                            CensusDate = Helpers.FromUnixTime(point.TIMESTAMP).ToLocalTime().Date,
+                            Score = Convert.ToDouble(point.SCORE),
+                            Rank = 0,
+                            RRank = 0
+                        });
+                    }
+
+                    // Save each stat
+                    rctx.SaveChanges();
                 }
-                rctx.SaveChanges();
+
             }
         }
 
-
-        public string ApplyComparisonToTemplate(CompareResult compareSets, string templatePath)
+        public (string title, string report) ApplyComparisonToTemplate(CompareResult compareSets, string templatePath)
         {
-            string template = File.ReadAllText(templatePath);
+            List<string> fileLines = File.ReadAllLines(templatePath, Encoding.Default).ToList();
+            string title = fileLines.First();
+            fileLines.RemoveAt(0);
+            string template = String.Join(Environment.NewLine, fileLines);
+            
+            template = template.Replace("%IMPROVED%", MakeReportBody(compareSets.Improved));
+            template = template.Replace("%WORSENED%", MakeReportBody(compareSets.Worsened));
+            template = template.Replace("%IMPROVED_ABS%", MakeReportBody(compareSets.ImprovedAbs));
+            template = template.Replace("%WORSENED_ABS%", MakeReportBody(compareSets.WorsenedAbs));
+            template = template.Replace("%BEST%", MakeReportBody(compareSets.Best));
+            template = template.Replace("%WORST%", MakeReportBody(compareSets.Worst));
 
-            template  = template.Replace("%IMPROVED%", MakeReportBody(compareSets.Improved));
-            template  = template.Replace("%WORSENED%", MakeReportBody(compareSets.Worsened));
-            template  = template.Replace("%IMPROVED_ABS%", MakeReportBody(compareSets.ImprovedAbs));
-            template  = template.Replace("%WORSENED_ABS%", MakeReportBody(compareSets.WorsenedAbs));
-            template  = template.Replace("%BEST%", MakeReportBody(compareSets.Best));
-            template  = template.Replace("%WORST%", MakeReportBody(compareSets.Worst));
-
-            return template;
+            return (title: title, report: template);
         }
 
         private string MakeReportBody(List<ComparisonDTO> toPrintList)
