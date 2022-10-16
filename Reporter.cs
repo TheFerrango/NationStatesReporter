@@ -81,7 +81,7 @@ namespace nsreporter
                             CensusDate = runningDate,
                             Score = cens.Score,
                             Rank = cens.Rank,
-                            RRank = cens.RRank
+                            RRank = cens.RRank ?? 0
                         });
                     }
                     rctx.SaveChanges();
