@@ -26,20 +26,7 @@ namespace nsreporter.ReporterDB
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            //     modelBuilder.Entity<IssOptResult>()
-            //                 .HasKey(ior => new
-            //                 {
-            //                     ior.IDIssue,
-            //                     ior.IDOption,
-            //                     ior.IDRanking
-            //                 });
-
-            //     modelBuilder.Entity<Option>()
-            //                 .HasKey(opt => new
-            //                 {
-            //                     opt.ID,
-            //                     opt.IDIssue
-            //                 });
+            modelBuilder.Entity<DatedScale>(x => x.ToTable("DatedScales"));         
         }
     }
 }

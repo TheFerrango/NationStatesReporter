@@ -22,10 +22,21 @@ namespace nsreporter
             }
         }
 
-        public CompareResult CompareOldData()
+        public DateTime GetLastDate()
+        {
+            using (ReporterContext rctx = new ReporterContext())
+            {
+                var lastDate = rctx.DatedScales.Select(ds => ds.CensusDate)
+                                   .Distinct()
+                                   .OrderByDescending(x => x)
+                                   .First();
+                return lastDate;
+            }
+        }
+
+        public CompareResult CompareOldData(DateTime oggi)
         {
             var toExclude = new List<CensusEnum>() { CensusEnum.WorldAssemblyEndorsements, CensusEnum.Survivors, CensusEnum.Population, CensusEnum.Zombies, CensusEnum.Dead };
-            DateTime oggi = new DateTime(2020,1,20); //DateTime.Today;
             DateTime meseScorso = oggi.AddMonths(-1);
             using (ReporterContext rctx = new ReporterContext())
             {
@@ -66,7 +77,7 @@ namespace nsreporter
             using (ReporterContext rctx = new ReporterContext())
             {
                 DateTime runningDate = DateTime.Today;
-
+                var hmm = rctx.DatedScales.Where(x => x.CensusDate == runningDate).ToArray();
                 // If today has already run and imported data, there is no point in doing this again
                 if (!rctx.DatedScales.Where(x => x.CensusDate == runningDate).Any())
                 {
@@ -80,8 +91,8 @@ namespace nsreporter
                             CensusId = cens.Id,
                             CensusDate = runningDate,
                             Score = cens.Score,
-                            Rank = cens.Rank,
-                            RRank = cens.RRank ?? 0
+                            Rank = cens.Rank ?? 0,
+                            RRank = cens.RRank ?? 0,
                         });
                     }
                     rctx.SaveChanges();
@@ -91,8 +102,13 @@ namespace nsreporter
 
         public async Task GetOldData(string nation)
         {
+           await this.GetOldData(nation, null, null);
+        }
+
+        public async Task GetOldData(string nation, DateTime? from, DateTime? to)
+        {
             NationCommands api = new NationCommands();
-            Nation censusData = await api.GetHistoryNationCensus(nation, null, null, CensusEnum.All);
+            Nation censusData = await api.GetHistoryNationCensus(nation, from, to, CensusEnum.All);
 
             using (ReporterContext rctx = new ReporterContext())
             {
@@ -125,7 +141,7 @@ namespace nsreporter
             string title = fileLines.First();
             fileLines.RemoveAt(0);
             string template = String.Join(Environment.NewLine, fileLines);
-            
+
             template = template.Replace("%IMPROVED%", MakeReportBody(compareSets.Improved));
             template = template.Replace("%WORSENED%", MakeReportBody(compareSets.Worsened));
             template = template.Replace("%IMPROVED_ABS%", MakeReportBody(compareSets.ImprovedAbs));
